@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <script src='http://code.jquery.com/jquery-1.7.2.min.js'></script>
+    <script>
+$(function() {
+  var ws = new WebSocket('ws://' + document.location.host + '/socket');
+  var id = undefined
+  
+  ws.onmessage = function(e) {
+    if(id == undefined) {
+      id = e.data.match(/<(.*)>/)[1];
+      $('#chat-id').text('<' + id + '>');
+    }
+
+    if ($('#chat tbody tr:first').length > 0) {
+      $('#chat tbody tr:first').before('<tr><td>' + e.data + '</td></tr>');  
+    } else {
+      $('#chatody').append('<tr><td>' + e.data + '</td></tr>');  
+    }
+  };
+
+  $("form").submit(function(e) {
+    if($("#msg").val().length > 0) {
+      message = "<" + id + ">: " + $("#msg").val();
+      ws.send(message);
+      $("#msg").val("");
+    }
+    return false;
+  });
+});
+    </script>
+  </head>
+  <body>
+    <h1>Simple chat using websockets.</h1>
+    <p>Your id is: <span id=chat-id></span></p>
+    <table class='table' id='chat'>
+      <tbody>
+        <tr>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <form>
+      <input id='msg' placeholder='Type something...' type='text' />
+      <div>
+        <input id='send' type='submit' value='Send' />
+      </div>
+    </form>
+  </body>
+</html>
